@@ -11,6 +11,14 @@ type Backoff interface {
 
 // ClientConfig holds any configuration needed by HTTPClient.
 type ClientConfig struct {
+	// Backoff is backoff strategy.
+	Backoff Backoff
+	// MaxRetry sets how many times a request should be tried if error happens.
+	// To make it clear, this is how the request life cycle.
+	// Say we set MaxRetry to 1.
+	// First, a request will be launched. If an error occurred, then the request will be tried once.
+	// In other words, by setup MaxRetry to 1, at most there will be two trials.
+	MaxRetry int
 }
 
 // HTTPClient wraps native golang http client.
