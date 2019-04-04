@@ -3,6 +3,11 @@ package steelix
 
 import "time"
 
+const (
+	// DefaultMaxRetry is the default value for max retry.
+	DefaultMaxRetry = 0
+)
+
 // Backoff is a contract for implementing backoff strategy.
 type Backoff interface {
 	// NextInterval returns the interval for the subsequent requests.
