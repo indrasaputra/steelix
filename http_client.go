@@ -2,11 +2,15 @@
 package steelix
 
 import (
+	"context"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
 )
+
+// ContextKey is context key.
+type ContextKey string
 
 // Backoff is a contract for implementing backoff strategy.
 type Backoff interface {
@@ -56,6 +60,10 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 			io.Copy(ioutil.Discard, resp.Body)
 			resp.Body.Close()
 		}
+
+		ctx := req.Context()
+		ctx = context.WithValue(ctx, ContextKey("X-Retry"), i)
+		req = req.WithContext(ctx)
 
 		resp, err = h.client.Do(req)
 		if err != nil {
