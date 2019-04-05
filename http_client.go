@@ -2,6 +2,7 @@
 package steelix
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -60,6 +61,7 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 			resp.Body.Close()
 		}
 
+		req.Header.Set("X-Steelix-Retry", fmt.Sprintf("%d", i))
 		resp, err = h.client.Do(req)
 		if err != nil {
 			time.Sleep(h.config.Backoff.NextInterval())
