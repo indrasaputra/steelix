@@ -15,7 +15,7 @@ func (m mockBackoff) NextInterval() time.Duration {
 	return 0
 }
 
-func TestNewHTTPClient(*testing.T) {
+func TestNewHTTPClient(t *testing.T) {
 	config := &steelix.ClientConfig{
 		Backoff:  mockBackoff{},
 		MaxRetry: 0,
