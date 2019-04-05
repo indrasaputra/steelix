@@ -33,6 +33,7 @@ type ClientConfig struct {
 // In addition, it provides retry strategy.
 type HTTPClient struct {
 	client *http.Client
+	config *ClientConfig
 }
 
 // NewHTTPClient creates an instance of HTTPClient.
