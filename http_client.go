@@ -2,6 +2,8 @@
 package steelix
 
 import (
+	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -56,6 +58,7 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 
 	for i := 0; i <= h.config.MaxRetry; i++ {
 		if resp != nil {
+			io.Copy(ioutil.Discard, resp.Body)
 			resp.Body.Close()
 		}
 
