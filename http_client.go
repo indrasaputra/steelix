@@ -51,6 +51,9 @@ func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
 // this method wraps it with resiliency strategies.
 //
 // For example, when MaxRetry is set, the failed request will be repeated until max retry is exceeded.
+//
+// Before sending a request, a context will be added to the request.
+// The parent of the added context is taken from the request itself, so the original context won't go.
 func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
@@ -62,7 +65,7 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 		}
 
 		ctx := req.Context()
-		ctx = context.WithValue(ctx, ContextKey("X-Retry"), i)
+		ctx = context.WithValue(ctx, ContextKey("X-Steelix-Retry"), i)
 		req = req.WithContext(ctx)
 
 		resp, err = h.client.Do(req)
