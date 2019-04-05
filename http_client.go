@@ -47,7 +47,7 @@ func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
 
 // Do does almost the same thing as http.Client.Do does.
 // The differences are the resiliency strategies.
-// While the native http.Client.Do only does a request and return the response,
+// While the native http.Client.Do only sends a request and returns the response,
 // this method wraps it with resiliency strategies.
 //
 // For example, when MaxRetry is set, the failed request will be repeated until max retry is exceeded.
