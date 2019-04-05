@@ -2,15 +2,12 @@
 package steelix
 
 import (
-	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
 )
-
-// ContextKey is context key.
-type ContextKey string
 
 // Backoff is a contract for implementing backoff strategy.
 type Backoff interface {
@@ -52,8 +49,8 @@ func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
 //
 // For example, when MaxRetry is set, the failed request will be repeated until max retry is exceeded.
 //
-// Before sending a request, a context will be added to the request.
-// The parent of the added context is taken from the request itself, so the original context won't go.
+// Before sending a request, a header X-Steelix-Retry will be set to the request.
+// Its value is the current retry count.
 func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
@@ -64,10 +61,7 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 			resp.Body.Close()
 		}
 
-		ctx := req.Context()
-		ctx = context.WithValue(ctx, ContextKey("X-Steelix-Retry"), i)
-		req = req.WithContext(ctx)
-
+		req.Header.Set("X-Steelix-Retry", fmt.Sprintf("%d", i))
 		resp, err = h.client.Do(req)
 		if err != nil {
 			time.Sleep(h.config.Backoff.NextInterval())

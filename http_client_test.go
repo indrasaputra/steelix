@@ -35,9 +35,10 @@ func TestHTTPClient_Do(t *testing.T) {
 	tables := []struct {
 		handler func(http.ResponseWriter, *http.Request)
 		status  int
+		retry   string
 	}{
-		{createOkHandler(), http.StatusOK},
-		{createFailHandler(), http.StatusInternalServerError},
+		{createOkHandler(), http.StatusOK, "0"},
+		{createFailHandler(), http.StatusInternalServerError, "1"},
 	}
 
 	for _, table := range tables {
@@ -56,6 +57,7 @@ func TestHTTPClient_Do(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, table.status, resp.StatusCode)
+			assert.Equal(t, table.retry, resp.Header.Get("X-Steelix-Retry"))
 		})
 	}
 
@@ -83,6 +85,7 @@ func createConfig(n uint32) *steelix.ClientConfig {
 
 func createOkHandler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Steelix-Retry", r.Header.Get("X-Steelix-Retry"))
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`ok`))
 	}
@@ -90,6 +93,7 @@ func createOkHandler() func(w http.ResponseWriter, r *http.Request) {
 
 func createFailHandler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Steelix-Retry", r.Header.Get("X-Steelix-Retry"))
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`not ok`))
 	}
