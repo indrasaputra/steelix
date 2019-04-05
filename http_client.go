@@ -61,9 +61,11 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 
 		resp, err = h.client.Do(req)
 		if err != nil {
+			time.Sleep(h.config.Backoff.NextInterval())
 			continue
 		}
 		if resp.StatusCode >= 500 {
+			time.Sleep(h.config.Backoff.NextInterval())
 			continue
 		}
 		break
