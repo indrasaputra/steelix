@@ -34,3 +34,7 @@ type ClientConfig struct {
 type HTTPClient struct {
 	client *http.Client
 }
+
+// NewHTTPClient creates an instance of HTTPClient.
+func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
+}
