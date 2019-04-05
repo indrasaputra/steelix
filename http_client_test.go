@@ -31,6 +31,7 @@ func TestHTTPClient_Do(t *testing.T) {
 	config := createConfig(1)
 	client := steelix.NewHTTPClient(http.DefaultClient, config)
 
+	// === test against server ===
 	tables := []struct {
 		handler func(http.ResponseWriter, *http.Request)
 		status  int
@@ -57,6 +58,20 @@ func TestHTTPClient_Do(t *testing.T) {
 			assert.Equal(t, table.status, resp.StatusCode)
 		})
 	}
+
+	// === test when request is not valid ===
+	t.Run("invalid request", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, "inval!t", nil)
+		assert.Nil(t, err)
+
+		server := httptest.NewServer(http.HandlerFunc(createOkHandler()))
+		defer server.Close()
+
+		resp, err := client.Do(req)
+		assert.NotNil(t, err)
+		assert.Nil(t, resp)
+	})
+
 }
 
 func createConfig(n uint32) *steelix.ClientConfig {
