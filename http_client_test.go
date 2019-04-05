@@ -40,3 +40,10 @@ func createOkHandler() func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`ok`))
 	}
 }
+
+func createFailHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`not ok`))
+	}
+}
