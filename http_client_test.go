@@ -22,5 +22,6 @@ func TestNewHTTPClient(*testing.T) {
 	}
 	client := steelix.NewHTTPClient(http.DefaultClient, config)
 
-	assert.NotNil(client)
+	assert.NotNil(t, client)
+	assert.IsType(t, &steelix.HTTPClient{}, client)
 }
