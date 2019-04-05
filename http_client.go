@@ -27,7 +27,7 @@ type ClientConfig struct {
 	// Say we set MaxRetry to 1.
 	// First, a request will be launched. If an error occurred, then the request will be tried once.
 	// In other words, by setup MaxRetry to 1, at most there will be two trials.
-	MaxRetry int
+	MaxRetry uint32
 }
 
 // HTTPClient wraps native golang http client.
@@ -58,7 +58,7 @@ func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 
-	for i := 0; i <= h.config.MaxRetry; i++ {
+	for i := uint32(0); i <= h.config.MaxRetry; i++ {
 		if resp != nil {
 			io.Copy(ioutil.Discard, resp.Body)
 			resp.Body.Close()
