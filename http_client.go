@@ -1,12 +1,16 @@
 // Package steelix wraps http client and makes it more resilient.
 package steelix
 
-import "time"
-
-const (
-	// DefaultMaxRetry is the default value for max retry.
-	DefaultMaxRetry = 0
+import (
+	"context"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"time"
 )
+
+// ContextKey is context key.
+type ContextKey string
 
 // Backoff is a contract for implementing backoff strategy.
 type Backoff interface {
@@ -23,10 +27,58 @@ type ClientConfig struct {
 	// Say we set MaxRetry to 1.
 	// First, a request will be launched. If an error occurred, then the request will be tried once.
 	// In other words, by setup MaxRetry to 1, at most there will be two trials.
-	MaxRetry int
+	MaxRetry uint32
 }
 
 // HTTPClient wraps native golang http client.
 // In addition, it provides retry strategy.
 type HTTPClient struct {
+	client *http.Client
+	config *ClientConfig
+}
+
+// NewHTTPClient creates an instance of HTTPClient.
+func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
+	return &HTTPClient{
+		client: client,
+		config: config,
+	}
+}
+
+// Do does almost the same thing as http.Client.Do does.
+// The differences are the resiliency strategies.
+// While the native http.Client.Do only sends a request and returns the response,
+// this method wraps it with resiliency strategies.
+//
+// For example, when MaxRetry is set, the failed request will be repeated until max retry is exceeded.
+//
+// Before sending a request, a context will be added to the request.
+// The parent of the added context is taken from the request itself, so the original context won't go.
+func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
+	var resp *http.Response
+	var err error
+
+	for i := uint32(0); i <= h.config.MaxRetry; i++ {
+		if resp != nil {
+			io.Copy(ioutil.Discard, resp.Body)
+			resp.Body.Close()
+		}
+
+		ctx := req.Context()
+		ctx = context.WithValue(ctx, ContextKey("X-Steelix-Retry"), i)
+		req = req.WithContext(ctx)
+
+		resp, err = h.client.Do(req)
+		if err != nil {
+			time.Sleep(h.config.Backoff.NextInterval())
+			continue
+		}
+		if resp.StatusCode >= 500 {
+			time.Sleep(h.config.Backoff.NextInterval())
+			continue
+		}
+		break
+	}
+
+	return resp, err
 }
