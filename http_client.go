@@ -38,4 +38,8 @@ type HTTPClient struct {
 
 // NewHTTPClient creates an instance of HTTPClient.
 func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
+	return &HTTPClient{
+		client: client,
+		config: config,
+	}
 }
