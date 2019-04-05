@@ -1,7 +1,11 @@
 package steelix_test
 
 import (
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -24,7 +28,35 @@ func TestNewHTTPClient(t *testing.T) {
 }
 
 func TestHTTPClient_Do(t *testing.T) {
+	config := createConfig(1)
+	client := steelix.NewHTTPClient(http.DefaultClient, config)
 
+	tables := []struct {
+		handler func(http.ResponseWriter, *http.Request)
+		status  int
+	}{
+		{createOkHandler(), http.StatusOK},
+		{createFailHandler(), http.StatusInternalServerError},
+	}
+
+	for _, table := range tables {
+		t.Run(fmt.Sprintf("server return %d", table.status), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(table.handler))
+			defer server.Close()
+
+			req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+			assert.Nil(t, err)
+
+			resp, err := client.Do(req)
+			defer func() {
+				io.Copy(ioutil.Discard, resp.Body)
+				resp.Body.Close()
+			}()
+
+			assert.Nil(t, err)
+			assert.Equal(t, table.status, resp.StatusCode)
+		})
+	}
 }
 
 func createConfig(n uint32) *steelix.ClientConfig {
