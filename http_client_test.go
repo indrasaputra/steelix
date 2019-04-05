@@ -33,3 +33,10 @@ func createConfig(n uint32) *steelix.ClientConfig {
 		MaxRetry: n,
 	}
 }
+
+func createOkHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`ok`))
+	}
+}
