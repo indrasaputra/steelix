@@ -51,5 +51,23 @@ func NewHTTPClient(client *http.Client, config *ClientConfig) *HTTPClient {
 //
 // For example, when MaxRetry is set, the failed request will be repeated until max retry is exceeded.
 func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
+	var resp *http.Response
+	var err error
 
+	for i := 0; i <= h.config.MaxRetry; i++ {
+		if resp != nil {
+			resp.Body.Close()
+		}
+
+		resp, err = h.client.Do(req)
+		if err != nil {
+			continue
+		}
+		if resp.StatusCode >= 500 {
+			continue
+		}
+		break
+	}
+
+	return resp, err
 }
