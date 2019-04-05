@@ -1,7 +1,10 @@
 // Package steelix wraps http client and makes it more resilient.
 package steelix
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 const (
 	// DefaultMaxRetry is the default value for max retry.
@@ -29,4 +32,5 @@ type ClientConfig struct {
 // HTTPClient wraps native golang http client.
 // In addition, it provides retry strategy.
 type HTTPClient struct {
+	client *http.Client
 }
