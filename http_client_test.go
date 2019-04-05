@@ -16,12 +16,20 @@ func (m mockBackoff) NextInterval() time.Duration {
 }
 
 func TestNewHTTPClient(t *testing.T) {
-	config := &steelix.ClientConfig{
-		Backoff:  mockBackoff{},
-		MaxRetry: 0,
-	}
+	config := createConfig(0)
 	client := steelix.NewHTTPClient(http.DefaultClient, config)
 
 	assert.NotNil(t, client)
 	assert.IsType(t, &steelix.HTTPClient{}, client)
+}
+
+func TestHTTPClient_Do(t *testing.T) {
+
+}
+
+func createConfig(n uint32) *steelix.ClientConfig {
+	return &steelix.ClientConfig{
+		Backoff:  mockBackoff{},
+		MaxRetry: n,
+	}
 }
