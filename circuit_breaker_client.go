@@ -1,5 +1,7 @@
 package steelix
 
+import "net/http"
+
 // BreakerConfig holds any configuration needed by HTTPBreakerConfig.
 type BreakerConfig struct {
 	// Name is the name of circuit breaker.
@@ -45,4 +47,13 @@ func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreake
 		client: client,
 		config: config,
 	}
+}
+
+// Do does almost the same thing as HTTPClient or Golang http.Client does.
+// In addition, it adds circuit breaker functionality.
+//
+// When the ClientConfig is set, it also apply all resiliency strategies
+// configured there, such as retry strategy.
+func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
+
 }
