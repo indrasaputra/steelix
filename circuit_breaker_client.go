@@ -76,7 +76,6 @@ func createBreakerSettings(config *BreakerConfig) gobreaker.Settings {
 		Name:        config.Name,
 		MaxRequests: maxPassedRequests,
 		Interval:    0,
-		Timeout:     client.client.Timeout,
 		ReadyToTrip: func(counts gobreaker.Counts) bool {
 			return readyToTrip(counts, config)
 		},
