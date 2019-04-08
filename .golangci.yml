@@ -5,4 +5,12 @@ linters-settings:
     # [deprecated] comma-separated list of pairs of the form pkg:regex
     # the regex is used to ignore names within pkg. (default "fmt:.*").
     # see https://github.com/kisielk/errcheck#the-deprecated-method for details
-    ignore: fmt:.*,io/ioutil:^Copy.*
+    ignore: fmt:.*,io:^Copy.*
+
+# issues:
+#   # Excluding configuration per-path, per-linter, per-text and per-source
+#   exclude-rules:
+#     # Exclude some staticcheck messages
+#     - linters:
+#         - errcheck
+#       text: fmt:.*,io:^Copy.*
