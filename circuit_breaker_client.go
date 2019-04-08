@@ -89,7 +89,7 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 			time.Sleep(h.client.config.Backoff.NextInterval())
 			continue
 		}
-		resp := tmp.(*http.Response)
+		resp = tmp.(*http.Response)
 		if resp.StatusCode >= 500 {
 			time.Sleep(h.client.config.Backoff.NextInterval())
 			continue
