@@ -52,15 +52,7 @@ type HTTPBreakerClient struct {
 
 // NewHTTPBreakerClient return an instance of HTTPBreakerClient.
 func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreakerClient {
-	st := gobreaker.Settings{
-		Name:        config.Name,
-		MaxRequests: maxPassedRequests,
-		Interval:    0,
-		Timeout:     client.client.Timeout,
-		ReadyToTrip: func(counts gobreaker.Counts) bool {
-			return readyToTrip(counts, config)
-		},
-	}
+	st := createBreakerSettings(config)
 	breaker := gobreaker.NewCircuitBreaker(st)
 
 	return &HTTPBreakerClient{
@@ -77,6 +69,18 @@ func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreake
 // configured there, such as retry strategy.
 func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 
+}
+
+func createBreakerSettings(config *BreakerConfig) gobreaker.Settings {
+	return gobreaker.Settings{
+		Name:        config.Name,
+		MaxRequests: maxPassedRequests,
+		Interval:    0,
+		Timeout:     client.client.Timeout,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			return readyToTrip(counts, config)
+		},
+	}
 }
 
 func readyToTrip(counts gobreaker.Counts, config *BreakerConfig) bool {
