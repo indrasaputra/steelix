@@ -35,5 +35,14 @@ type BreakerConfig struct {
 // HTTPBreakerClient wraps HTTPClient with circuit breaker functionality.
 // It does what HTTPClient does and adds circuit breaker when doing its job.
 type HTTPBreakerClient struct {
-	httpclient *HTTPClient
+	client *HTTPClient
+	config *BreakerConfig
+}
+
+// NewHTTPBreakerClient return an instance of HTTPBreakerClient.
+func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreakerClient {
+	return &HTTPBreakerClient{
+		client: client,
+		config: config,
+	}
 }
