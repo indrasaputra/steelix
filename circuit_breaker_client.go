@@ -16,7 +16,20 @@ type BreakerConfig struct {
 	// This configuration is used together with MinRequests, which means
 	// if we set MinConsecutiveFailures=5 and MinRequests=10, then there are
 	// 7 failed requests, the breaker will not change its state.
+	//
+	// The breaker will change from closed to open
+	// if either MinConsecutiveFailures or FailurePercentage condition are met.
 	MinConsecutiveFailures uint32
+	// FailurePercentage is a percentage which will change the breaker state
+	// from closed to open if the percentage of failure requests is equal or higher
+	// than the given value.
+	//
+	// This configuration will run together with MinRequests and alongside
+	// the MinConsecutiveFailures.
+	//
+	// The breaker will change from closed to open
+	// if either MinConsecutiveFailures or FailurePercentage condition are met.
+	FailurePercentage uint32
 }
 
 // HTTPBreakerClient wraps HTTPClient with circuit breaker functionality.
