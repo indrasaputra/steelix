@@ -1,0 +1,8 @@
+# Please, refer to https://github.com/golangci/golangci-lint#config-file for more information
+
+linters-settings:
+  errcheck:
+    # [deprecated] comma-separated list of pairs of the form pkg:regex
+    # the regex is used to ignore names within pkg. (default "fmt:.*").
+    # see https://github.com/kisielk/errcheck#the-deprecated-method for details
+    ignore: fmt:.*,io/ioutil:^Copy.*
