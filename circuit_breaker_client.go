@@ -1,6 +1,14 @@
 package steelix
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/sony/gobreaker"
+)
+
+const (
+	maxPassedRequests = 5
+)
 
 // BreakerConfig holds any configuration needed by HTTPBreakerConfig.
 type BreakerConfig struct {
@@ -31,21 +39,34 @@ type BreakerConfig struct {
 	//
 	// The breaker will change from closed to open
 	// if either MinConsecutiveFailures or FailurePercentage condition are met.
-	FailurePercentage uint32
+	FailurePercentage float64
 }
 
 // HTTPBreakerClient wraps HTTPClient with circuit breaker functionality.
 // It does what HTTPClient does and adds circuit breaker when doing its job.
 type HTTPBreakerClient struct {
-	client *HTTPClient
-	config *BreakerConfig
+	client  *HTTPClient
+	config  *BreakerConfig
+	breaker *gobreaker.CircuitBreaker
 }
 
 // NewHTTPBreakerClient return an instance of HTTPBreakerClient.
 func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreakerClient {
+	st := gobreaker.Settings{
+		Name:        config.Name,
+		MaxRequests: maxPassedRequests,
+		Interval:    0,
+		Timeout:     client.client.Timeout,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			return readyToTrip(counts, config)
+		},
+	}
+	breaker := gobreaker.NewCircuitBreaker(st)
+
 	return &HTTPBreakerClient{
-		client: client,
-		config: config,
+		client:  client,
+		config:  config,
+		breaker: breaker,
 	}
 }
 
@@ -56,4 +77,16 @@ func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreake
 // configured there, such as retry strategy.
 func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 
+}
+
+func readyToTrip(counts gobreaker.Counts, config *BreakerConfig) bool {
+	if counts.Requests >= config.MinRequests && counts.ConsecutiveFailures >= config.MinConsecutiveFailures {
+		return true
+	}
+
+	percentage := (float64(counts.TotalFailures) / float64(counts.Requests)) * 100
+	if counts.Requests >= config.MinRequests && percentage >= config.FailurePercentage {
+		return true
+	}
+	return false
 }
