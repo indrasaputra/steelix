@@ -142,6 +142,9 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 				}
 				return r, e
 			})
+			if err == errServer {
+				err = nil
+			}
 			if tmp != nil {
 				resp = tmp.(*http.Response)
 			}
