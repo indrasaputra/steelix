@@ -48,3 +48,19 @@ func createPercentageBreakerConfig() *steelix.BreakerConfig {
 		FailurePercentage:      10,
 	}
 }
+
+func createOkHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Steelix-Retry", r.Header.Get("X-Steelix-Retry"))
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`ok`))
+	}
+}
+
+func createFailHandler() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Steelix-Retry", r.Header.Get("X-Steelix-Retry"))
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`not ok`))
+	}
+}
