@@ -72,8 +72,11 @@ func NewHTTPBreakerClient(client *HTTPClient, config *BreakerConfig) *HTTPBreake
 // When the ClientConfig is set, it also apply all resiliency strategies
 // configured there, such as retry strategy.
 func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
-	var resp *http.Response
-	var err error
+	var (
+		resp *http.Response
+		err  error
+		tmp  interface{}
+	)
 
 	for i := uint32(0); i <= h.client.config.MaxRetry; i++ {
 		if resp != nil {
@@ -82,7 +85,7 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 		}
 
 		req.Header.Set("X-Steelix-Retry", fmt.Sprintf("%d", i))
-		tmp, err := h.breaker.Execute(func() (interface{}, error) {
+		tmp, err = h.breaker.Execute(func() (interface{}, error) {
 			return h.client.client.Do(req)
 		})
 		if err != nil {
