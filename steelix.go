@@ -80,6 +80,23 @@ type Client struct {
 	breaker       *gobreaker.CircuitBreaker
 }
 
+// NewClient creates an instance of steelix.Client.
+// If RetryConfig is not set, the default retry config will be applied.
+// If BreakerConfig is not set, the default breaker config will be applied.
+//
+// Default retry config is:
+//   - Backoff: NoBackoff
+//   - MaxRetry: 0
+//
+// Default breaker config is:
+//   - Name: "steelix-client"
+//   - MinRequests: 10
+//   - MinConsecutiveFailures: 10
+//   - FailurePercentage: 25
+func NewClient(client *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
+	rc = buildRetryConfig(rc)
+}
+
 // Do does almost the same things http.Client.Do does.
 // The differences are resiliency strategies.
 // While the native http.Client.Do only sends a request and returns a response,
@@ -129,4 +146,14 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	return resp, err
+}
+
+func buildRetryConfig(rc *RetryConfig) *RetryConfig {
+	if rc == nil {
+		rc = &RetryConfig{
+			Backoff:  &noBackoff{},
+			MaxRetry: 0,
+		}
+	}
+	return rc
 }
