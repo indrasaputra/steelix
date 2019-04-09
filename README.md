@@ -57,3 +57,10 @@ func main() {
 	// omitted
 }
 ```
+
+Then, use `Do(req *http.Request)` method to send an HTTP request.
+
+```go
+req, _ := http.NewRequest(http.MethodGet, "http://localhost:8080", nil)
+resp, err := client.Do(req)
+```
