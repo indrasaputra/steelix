@@ -7,17 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/indrasaputra/steelix"
 	"github.com/stretchr/testify/assert"
 )
-
-type mockBackoff struct{}
-
-func (m mockBackoff) NextInterval() time.Duration {
-	return 0
-}
 
 func TestNewHTTPClient(t *testing.T) {
 	config := createConfig(0)

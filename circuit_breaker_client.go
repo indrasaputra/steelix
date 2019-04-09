@@ -52,7 +52,7 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 		tmp, err = h.breaker.Execute(func() (interface{}, error) {
 			r, e := h.client.client.Do(req)
 			if r != nil && r.StatusCode >= 500 {
-				return r, err5xx
+				return r, errServer
 			}
 			return r, e
 		})
@@ -67,27 +67,4 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	return resp, err
-}
-
-func createBreakerSettings(config *BreakerConfig) gobreaker.Settings {
-	return gobreaker.Settings{
-		Name:        config.Name,
-		MaxRequests: maxPassedRequests,
-		Interval:    0,
-		ReadyToTrip: func(counts gobreaker.Counts) bool {
-			return readyToTrip(counts, config)
-		},
-	}
-}
-
-func readyToTrip(counts gobreaker.Counts, config *BreakerConfig) bool {
-	if counts.Requests >= config.MinRequests && counts.ConsecutiveFailures >= config.MinConsecutiveFailures {
-		return true
-	}
-
-	percentage := (float64(counts.TotalFailures) / float64(counts.Requests)) * 100
-	if counts.Requests >= config.MinRequests && percentage >= config.FailurePercentage {
-		return true
-	}
-	return false
 }
