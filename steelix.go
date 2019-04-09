@@ -81,18 +81,15 @@ type Client struct {
 }
 
 // NewClient creates an instance of steelix.Client.
-// If RetryConfig is not set, the default retry config will be applied.
-// If BreakerConfig is not set, the default breaker config will be applied.
+//
+// If RetryConfig is unset, the default retry config will be applied.
+// Leave the RetryConfig unset is the same thing as not using retry strategy.
 //
 // Default retry config is:
 //   - Backoff: NoBackoff
 //   - MaxRetry: 0
 //
-// Default breaker config is:
-//   - Name: "steelix-breaker"
-//   - MinRequests: 10
-//   - MinConsecutiveFailures: 10
-//   - FailurePercentage: 25
+// If BreakerConfig is unset, the circuit breaker will not be applied.
 func NewClient(client *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
 	rc = buildRetryConfig(rc)
 	bc = buildBreakerConfig(bc)
