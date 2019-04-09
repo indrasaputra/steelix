@@ -3,6 +3,7 @@ package steelix
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -102,6 +103,8 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 			io.Copy(ioutil.Discard, resp.Body)
 			resp.Body.Close()
 		}
+
+		req.Header.Set("X-Steelix-Retry", fmt.Sprintf("%d", i))
 
 		if c.breaker == nil {
 			resp, err = c.client.Do(req)
