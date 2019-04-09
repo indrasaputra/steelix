@@ -24,6 +24,8 @@ Struct `steelix.Client` wraps `http.Client`. Therefore, users should prepare the
 
 To use retry and circuit breaker strategy, provide the respective configurations.
 
+For more information, visit documentation in godoc.
+
 ```go
 package main
 
