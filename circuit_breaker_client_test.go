@@ -1,7 +1,11 @@
 package steelix_test
 
 import (
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,6 +20,56 @@ func TestNewHTTPBreakerClient(t *testing.T) {
 	client := steelix.NewHTTPBreakerClient(sc, cfg)
 	assert.NotNil(t, client)
 	assert.IsType(t, &steelix.HTTPBreakerClient{}, client)
+}
+
+func TestHTTPBreakerClient_Do(t *testing.T) {
+	sc := createSteelixHTTPClient()
+	cfg := createBreakerConfig()
+
+	client := steelix.NewHTTPBreakerClient(sc, cfg)
+
+	// === test against server ===
+	tables := []struct {
+		handler func(http.ResponseWriter, *http.Request)
+		status  int
+	}{
+		{createOkHandler(), http.StatusOK},
+		{createFailHandler(), http.StatusInternalServerError},
+	}
+
+	for _, table := range tables {
+		t.Run(fmt.Sprintf("server return %d", table.status), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(table.handler))
+			defer server.Close()
+
+			req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+			assert.Nil(t, err)
+
+			resp, err := client.Do(req)
+			defer func() {
+				io.Copy(ioutil.Discard, resp.Body)
+				resp.Body.Close()
+			}()
+
+			assert.Nil(t, err)
+			assert.Equal(t, table.status, resp.StatusCode)
+		})
+	}
+
+	// === test when request is not valid ===
+	t.Run("invalid request", func(t *testing.T) {
+		c := steelix.NewHTTPBreakerClient(sc, cfg)
+
+		req, err := http.NewRequest(http.MethodGet, "inval!t", nil)
+		assert.Nil(t, err)
+
+		server := httptest.NewServer(http.HandlerFunc(createOkHandler()))
+		defer server.Close()
+
+		resp, err := c.Do(req)
+		assert.NotNil(t, err)
+		assert.Nil(t, resp)
+	})
 }
 
 func createSteelixHTTPClient() *steelix.HTTPClient {
