@@ -70,6 +70,29 @@ func TestHTTPBreakerClient_Do(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.Nil(t, resp)
 	})
+
+	// === capture error on consecutive failure ===
+	t.Run("capture consecutive failure", func(t *testing.T) {
+		cc := createConfig(5)
+		hc := steelix.NewHTTPClient(http.DefaultClient, cc)
+		bc := &steelix.BreakerConfig{
+			Name:                   "steelix breaker consecutive failure",
+			MinRequests:            2,
+			MinConsecutiveFailures: 2,
+			FailurePercentage:      90,
+		}
+
+		client := steelix.NewHTTPBreakerClient(hc, bc)
+
+		server := httptest.NewServer(http.HandlerFunc(createFailHandler()))
+		defer server.Close()
+
+		req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+		assert.Nil(t, err)
+
+		_, err = client.Do(req)
+		assert.NotNil(t, err)
+	})
 }
 
 func createSteelixHTTPClient() *steelix.HTTPClient {
