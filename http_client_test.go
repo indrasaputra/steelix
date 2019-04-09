@@ -73,7 +73,6 @@ func TestHTTPClient_Do(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.Nil(t, resp)
 	})
-
 }
 
 func createConfig(n uint32) *steelix.ClientConfig {
