@@ -97,11 +97,13 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 			}
 			return r, e
 		})
+		if tmp != nil {
+			resp = tmp.(*http.Response)
+		}
 		if err != nil {
 			time.Sleep(h.client.config.Backoff.NextInterval())
 			continue
 		}
-		resp = tmp.(*http.Response)
 		break
 	}
 
