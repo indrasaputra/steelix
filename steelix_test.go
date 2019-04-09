@@ -97,6 +97,23 @@ func TestClient_Do_WithBreaker(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.Nil(t, resp)
 	})
+
+	t.Run("percentage breaker", func(t *testing.T) {
+		client := steelix.NewClient(http.DefaultClient, nil, createPercentageBreakerConfig())
+
+		server := httptest.NewServer(http.HandlerFunc(createFailHandler()))
+		defer server.Close()
+
+		req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+		assert.Nil(t, err)
+
+		var resp *http.Response
+		for i := 0; i < 13; i++ {
+			resp, err = client.Do(req)
+		}
+		assert.NotNil(t, err)
+		assert.Nil(t, resp)
+	})
 }
 
 func createRetryConfig(n uint32) *steelix.RetryConfig {
