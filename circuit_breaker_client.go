@@ -1,6 +1,7 @@
 package steelix
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,6 +13,10 @@ import (
 
 const (
 	maxPassedRequests = 5
+)
+
+var (
+	err5xx = errors.New("server replied with 5xx status code")
 )
 
 // BreakerConfig holds any configuration needed by HTTPBreakerConfig.
@@ -86,17 +91,17 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 
 		req.Header.Set("X-Steelix-Retry", fmt.Sprintf("%d", i))
 		tmp, err = h.breaker.Execute(func() (interface{}, error) {
-			return h.client.client.Do(req)
+			r, e := h.client.client.Do(req)
+			if r != nil && r.StatusCode >= 500 {
+				return r, err5xx
+			}
+			return r, e
 		})
 		if err != nil {
 			time.Sleep(h.client.config.Backoff.NextInterval())
 			continue
 		}
 		resp = tmp.(*http.Response)
-		if resp.StatusCode >= 500 {
-			time.Sleep(h.client.config.Backoff.NextInterval())
-			continue
-		}
 		break
 	}
 
