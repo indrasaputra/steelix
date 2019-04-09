@@ -2,6 +2,8 @@
 package steelix
 
 import (
+	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -79,5 +81,39 @@ type Client struct {
 //
 // When BreakerConfig is set, the request will be launched inside circuit breaker.
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
+	var (
+		resp *http.Response
+		err  error
+		tmp  interface{}
+	)
 
+	for i := uint32(0); i <= c.retryConfig.MaxRetry; i++ {
+		if resp != nil {
+			io.Copy(ioutil.Discard, resp.Body)
+			resp.Body.Close()
+		}
+
+		if c.breaker == nil {
+			resp, err = c.client.Do(req)
+		} else {
+			tmp, err = c.breaker.Execute(func() (interface{}, error) {
+				r, e := c.client.Do(req)
+				if r != nil && r.StatusCode >= 500 {
+					return r, err5xx
+				}
+				return r, e
+			})
+			if tmp != nil {
+				resp = tmp.(*http.Response)
+			}
+		}
+
+		if err != nil || resp.StatusCode >= 500 {
+			time.Sleep(c.retryConfig.Backoff.NextInterval())
+			continue
+		}
+		break
+	}
+
+	return resp, err
 }
