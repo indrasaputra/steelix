@@ -62,8 +62,24 @@ func TestClient_Do_WithRetry(t *testing.T) {
 	}
 }
 
-func TestClient_Do_WithRetryAndBreaker(t *testing.T) {
+func TestClient_Do_WithBreaker(t *testing.T) {
+	t.Run("#call < min requests needed", func(t *testing.T) {
+		client := steelix.NewClient(http.DefaultClient, nil, createConsecutiveBreakerConfig())
 
+		server := httptest.NewServer(http.HandlerFunc(createFailHandler()))
+		defer server.Close()
+
+		req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+		assert.Nil(t, err)
+
+		var resp *http.Response
+		for i := 0; i < 5; i++ {
+			resp, err = client.Do(req)
+		}
+		assert.Nil(t, err)
+		assert.NotNil(t, resp)
+		assert.Equal(t, 500, resp.StatusCode)
+	})
 }
 
 func createRetryConfig(n uint32) *steelix.RetryConfig {
