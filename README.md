@@ -11,3 +11,9 @@ Steelix is an HTTP client reinforcement using resiliency strategy.
 ## Description
 
 Steelix wraps native golang HTTP client with some resiliency strategies. There are two resiliency strategies available, retry and circuit breaker.
+
+## Installation
+
+```
+go get -u github.com/indrasaputra/steelix
+```
