@@ -10,6 +10,10 @@ import (
 	"github.com/sony/gobreaker"
 )
 
+const (
+	serverErrCode = 500
+)
+
 // Backoff is a contract for implementing backoff strategy.
 type Backoff interface {
 	// NextInterval returns the interval for the subsequent requests.
@@ -98,7 +102,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 		} else {
 			tmp, err = c.breaker.Execute(func() (interface{}, error) {
 				r, e := c.client.Do(req)
-				if r != nil && r.StatusCode >= 500 {
+				if r != nil && r.StatusCode >= serverErrCode {
 					return r, err5xx
 				}
 				return r, e
@@ -108,7 +112,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 			}
 		}
 
-		if err != nil || resp.StatusCode >= 500 {
+		if err != nil || resp.StatusCode >= serverErrCode {
 			time.Sleep(c.retryConfig.Backoff.NextInterval())
 			continue
 		}
