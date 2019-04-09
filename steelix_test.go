@@ -26,3 +26,21 @@ func createRetryConfig(n uint32) *steelix.RetryConfig {
 		MaxRetry: n,
 	}
 }
+
+func createConsecutiveBreakerConfig() *steelix.BreakerConfig {
+	return &steelix.BreakerConfig{
+		Name:                   "steelix-consecutive-breaker",
+		MinRequests:            2,
+		MinConsecutiveFailures: 2,
+		FailurePercentage:      10,
+	}
+}
+
+func createPercentageBreakerConfig() *steelix.BreakerConfig {
+	return &steelix.BreakerConfig{
+		Name:                   "steelix-consecutive-breaker",
+		MinRequests:            2,
+		MinConsecutiveFailures: 3,
+		FailurePercentage:      10,
+	}
+}
