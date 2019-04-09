@@ -89,12 +89,13 @@ type Client struct {
 //   - MaxRetry: 0
 //
 // Default breaker config is:
-//   - Name: "steelix-client"
+//   - Name: "steelix-breaker"
 //   - MinRequests: 10
 //   - MinConsecutiveFailures: 10
 //   - FailurePercentage: 25
 func NewClient(client *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
 	rc = buildRetryConfig(rc)
+	bc = buildBreakerConfig(bc)
 }
 
 // Do does almost the same things http.Client.Do does.
@@ -160,4 +161,16 @@ func buildRetryConfig(rc *RetryConfig) *RetryConfig {
 		}
 	}
 	return rc
+}
+
+func buildBreakerConfig(bc *BreakerConfig) *BreakerConfig {
+	if bc == nil {
+		bc = &BreakerConfig{
+			Name:                   "steelix-breaker",
+			MinRequests:            10,
+			MinConsecutiveFailures: 10,
+			FailurePercentage:      25,
+		}
+	}
+	return bc
 }
