@@ -1,7 +1,16 @@
 // Package steelix wraps http client and makes it more resilient.
 package steelix
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
+
+// Backoff is a contract for implementing backoff strategy.
+type Backoff interface {
+	// NextInterval returns the interval for the subsequent requests.
+	NextInterval() time.Duration
+}
 
 // RetryConfig holds configuration for implementing retry strategy.
 type RetryConfig struct {

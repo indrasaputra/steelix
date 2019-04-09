@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-// Backoff is a contract for implementing backoff strategy.
-type Backoff interface {
-	// NextInterval returns the interval for the subsequent requests.
-	NextInterval() time.Duration
-}
-
 // ClientConfig holds any configuration needed by HTTPClient.
 type ClientConfig struct {
 	// Backoff is backoff strategy.
