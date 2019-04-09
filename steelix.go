@@ -148,6 +148,10 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
+type noBackoff struct{}
+
+func (n *noBackoff) NextInterval() time.Duration { return 0 }
+
 func buildRetryConfig(rc *RetryConfig) *RetryConfig {
 	if rc == nil {
 		rc = &RetryConfig{
