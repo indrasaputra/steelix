@@ -90,9 +90,16 @@ type Client struct {
 //   - MaxRetry: 0
 //
 // If BreakerConfig is unset, the circuit breaker will not be applied.
-func NewClient(client *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
+func NewClient(hc *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
 	rc = buildRetryConfig(rc)
-	bc = buildBreakerConfig(bc)
+
+	client := &Client{
+		client:        hc,
+		retryConfig:   rc,
+		breakerConfig: bc,
+		breaker:       nil,
+	}
+	return client
 }
 
 // Do does almost the same things http.Client.Do does.
