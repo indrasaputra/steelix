@@ -47,12 +47,17 @@ func TestHTTPBreakerClient_Do(t *testing.T) {
 
 			resp, err := client.Do(req)
 			defer func() {
-				io.Copy(ioutil.Discard, resp.Body)
-				resp.Body.Close()
+				if resp != nil {
+					io.Copy(ioutil.Discard, resp.Body)
+					resp.Body.Close()
+				}
 			}()
 
-			assert.Nil(t, err)
-			assert.Equal(t, table.status, resp.StatusCode)
+			if table.status == http.StatusOK {
+				assert.Nil(t, err)
+			} else {
+				assert.NotNil(t, err)
+			}
 		})
 	}
 
