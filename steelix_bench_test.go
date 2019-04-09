@@ -10,10 +10,17 @@ import (
 	"github.com/indrasaputra/steelix"
 )
 
+type doer interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
 func BenchmarkClient_Do_WithRetry(b *testing.B) {
 	rc := createRetryConfig(5)
 	client := steelix.NewClient(http.DefaultClient, rc, nil)
+	benchmarkClient(b, client)
+}
 
+func benchmarkClient(b *testing.B, client doer) {
 	server := httptest.NewServer(http.HandlerFunc(createOkHandler()))
 	defer server.Close()
 
