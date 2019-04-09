@@ -1,7 +1,6 @@
 package steelix
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -9,14 +8,6 @@ import (
 	"time"
 
 	"github.com/sony/gobreaker"
-)
-
-const (
-	maxPassedRequests = 5
-)
-
-var (
-	err5xx = errors.New("server replied with 5xx status code")
 )
 
 // HTTPBreakerClient wraps HTTPClient with circuit breaker functionality.

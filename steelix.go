@@ -2,6 +2,7 @@
 package steelix
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -11,7 +12,12 @@ import (
 )
 
 const (
-	serverErrCode = 500
+	serverErrCode     = 500
+	maxPassedRequests = 5
+)
+
+var (
+	errServer = errors.New("server replied with 5xx status code")
 )
 
 // Backoff is a contract for implementing backoff strategy.
@@ -103,7 +109,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 			tmp, err = c.breaker.Execute(func() (interface{}, error) {
 				r, e := c.client.Do(req)
 				if r != nil && r.StatusCode >= serverErrCode {
-					return r, err5xx
+					return r, errServer
 				}
 				return r, e
 			})
