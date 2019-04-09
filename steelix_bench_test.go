@@ -14,9 +14,14 @@ type doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-func BenchmarkClient_Do_WithRetry(b *testing.B) {
+func BenchmarkSteelixClient_Do_WithRetry(b *testing.B) {
 	rc := createRetryConfig(5)
 	client := steelix.NewClient(http.DefaultClient, rc, nil)
+	benchmarkClient(b, client)
+}
+
+func BenchmarkSteelixClient_Do_WithBreaker(b *testing.B) {
+	client := steelix.NewClient(http.DefaultClient, nil, createConsecutiveBreakerConfig())
 	benchmarkClient(b, client)
 }
 
