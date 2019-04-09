@@ -72,7 +72,7 @@ type BreakerConfig struct {
 }
 
 // Client wraps native golang http.Client
-// but imbued by retry and circuit breaker strategy if supplied.
+// but imbued with retry and circuit breaker strategy if supplied.
 type Client struct {
 	client        *http.Client
 	retryConfig   *RetryConfig
