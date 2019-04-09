@@ -99,6 +99,10 @@ func NewClient(hc *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
 		breakerConfig: bc,
 		breaker:       nil,
 	}
+	if bc != nil {
+		client.breaker = createBreaker(bc)
+	}
+
 	return client
 }
 
@@ -177,4 +181,32 @@ func buildBreakerConfig(bc *BreakerConfig) *BreakerConfig {
 		}
 	}
 	return bc
+}
+
+func createBreaker(cfg *BreakerConfig) *gobreaker.CircuitBreaker {
+	st := createBreakerSettings(cfg)
+	return gobreaker.NewCircuitBreaker(st)
+}
+
+func createBreakerSettings(config *BreakerConfig) gobreaker.Settings {
+	return gobreaker.Settings{
+		Name:        config.Name,
+		MaxRequests: maxPassedRequests,
+		Interval:    0,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			return readyToTrip(counts, config)
+		},
+	}
+}
+
+func readyToTrip(counts gobreaker.Counts, config *BreakerConfig) bool {
+	if counts.Requests >= config.MinRequests && counts.ConsecutiveFailures >= config.MinConsecutiveFailures {
+		return true
+	}
+
+	percentage := (float64(counts.TotalFailures) / float64(counts.Requests)) * 100
+	if counts.Requests >= config.MinRequests && percentage >= config.FailurePercentage {
+		return true
+	}
+	return false
 }
