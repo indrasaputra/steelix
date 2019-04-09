@@ -1,7 +1,11 @@
 package steelix_test
 
 import (
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -22,6 +26,40 @@ func TestNewClient(t *testing.T) {
 	// --- with retry and breaker ---
 	client = steelix.NewClient(http.DefaultClient, rc, createConsecutiveBreakerConfig())
 	assert.NotNil(t, client)
+}
+
+func TestClient_Do_WithRetry(t *testing.T) {
+	rc := createRetryConfig(1)
+	client := steelix.NewClient(http.DefaultClient, rc, nil)
+
+	tables := []struct {
+		handler func(w http.ResponseWriter, r *http.Request)
+		status  int
+		retry   string
+	}{
+		{createOkHandler(), 200, "0"},
+		{createFailHandler(), 500, "1"},
+	}
+
+	for _, table := range tables {
+		t.Run(fmt.Sprintf("Do with retry, server returns %d", table.status), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(table.handler))
+			defer server.Close()
+
+			req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+			assert.Nil(t, err)
+
+			resp, err := client.Do(req)
+			defer func() {
+				io.Copy(ioutil.Discard, resp.Body)
+				resp.Body.Close()
+			}()
+
+			assert.Nil(t, err)
+			assert.Equal(t, table.status, resp.StatusCode)
+			assert.Equal(t, table.retry, resp.Header.Get("X-Steelix-Retry"))
+		})
+	}
 }
 
 func createRetryConfig(n uint32) *steelix.RetryConfig {
