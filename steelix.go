@@ -66,3 +66,18 @@ type Client struct {
 	breakerConfig *BreakerConfig
 	breaker       *gobreaker.CircuitBreaker
 }
+
+// Do does almost the same things http.Client.Do does.
+// The differences are resiliency strategies.
+// While the native http.Client.Do only sends a request and returns a response,
+// this method wraps it with resiliency strategies,
+// such as retry and circuit breaker.
+//
+// For example, when RetryConfig is set, the failed request will be repeated until max retry is exceeded.
+// Before sending a request, a header X-Steelix-Retry will be set to the request.
+// Its value is the current retry count.
+//
+// When BreakerConfig is set, the request will be launched inside circuit breaker.
+func (c *Client) Do(req *http.Request) (*http.Response, error) {
+
+}
