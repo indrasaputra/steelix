@@ -62,6 +62,10 @@ func TestClient_Do_WithRetry(t *testing.T) {
 	}
 }
 
+func TestClient_Do_WithRetryAndBreaker(t *testing.T) {
+
+}
+
 func createRetryConfig(n uint32) *steelix.RetryConfig {
 	return &steelix.RetryConfig{
 		Backoff:  mockBackoff{},
@@ -72,18 +76,18 @@ func createRetryConfig(n uint32) *steelix.RetryConfig {
 func createConsecutiveBreakerConfig() *steelix.BreakerConfig {
 	return &steelix.BreakerConfig{
 		Name:                   "steelix-consecutive-breaker",
-		MinRequests:            2,
-		MinConsecutiveFailures: 2,
-		FailurePercentage:      10,
+		MinRequests:            10,
+		MinConsecutiveFailures: 10,
+		FailurePercentage:      20,
 	}
 }
 
 func createPercentageBreakerConfig() *steelix.BreakerConfig {
 	return &steelix.BreakerConfig{
 		Name:                   "steelix-consecutive-breaker",
-		MinRequests:            2,
-		MinConsecutiveFailures: 3,
-		FailurePercentage:      10,
+		MinRequests:            10,
+		MinConsecutiveFailures: 15,
+		FailurePercentage:      20,
 	}
 }
 
