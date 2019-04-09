@@ -75,7 +75,7 @@ func (h *HTTPBreakerClient) Do(req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
 
-	for i := uint32(0); i < h.client.config.MaxRetry; i++ {
+	for i := uint32(0); i <= h.client.config.MaxRetry; i++ {
 		if resp != nil {
 			io.Copy(ioutil.Discard, resp.Body)
 			resp.Body.Close()
