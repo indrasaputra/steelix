@@ -174,18 +174,6 @@ func buildRetryConfig(rc *RetryConfig) *RetryConfig {
 	return rc
 }
 
-func buildBreakerConfig(bc *BreakerConfig) *BreakerConfig {
-	if bc == nil {
-		bc = &BreakerConfig{
-			Name:                   "steelix-breaker",
-			MinRequests:            10,
-			MinConsecutiveFailures: 10,
-			FailurePercentage:      25,
-		}
-	}
-	return bc
-}
-
 func createBreaker(cfg *BreakerConfig) *gobreaker.CircuitBreaker {
 	st := createBreakerSettings(cfg)
 	return gobreaker.NewCircuitBreaker(st)
