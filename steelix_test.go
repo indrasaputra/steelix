@@ -18,6 +18,10 @@ func TestNewClient(t *testing.T) {
 	rc := createRetryConfig(5)
 	client := steelix.NewClient(http.DefaultClient, rc, nil)
 	assert.NotNil(t, client)
+
+	// --- with retry and breaker ---
+	client = steelix.NewClient(http.DefaultClient, rc, createConsecutiveBreakerConfig())
+	assert.NotNil(t, client)
 }
 
 func createRetryConfig(n uint32) *steelix.RetryConfig {
