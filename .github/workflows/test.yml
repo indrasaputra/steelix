@@ -1,10 +1,7 @@
-name: Test and Deploy
+name: Test
 
 on: [push, pull_request]
 
-env:
-  SERVICE_NAME: tetesan-hujan-bot
-  
 jobs:
   unit-test:
     name: unit test and coverage
