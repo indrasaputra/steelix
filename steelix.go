@@ -91,7 +91,7 @@ type Client struct {
 //
 // If BreakerConfig is unset, the circuit breaker will not be applied.
 func NewClient(hc *http.Client, rc *RetryConfig, bc *BreakerConfig) *Client {
-	rc = buildRetryConfig(rc)
+	rc = createRetryConfig(rc)
 
 	client := &Client{
 		client:        hc,
@@ -164,7 +164,7 @@ type noBackoff struct{}
 
 func (n *noBackoff) NextInterval() time.Duration { return 0 }
 
-func buildRetryConfig(rc *RetryConfig) *RetryConfig {
+func createRetryConfig(rc *RetryConfig) *RetryConfig {
 	if rc == nil {
 		rc = &RetryConfig{
 			Backoff:  &noBackoff{},

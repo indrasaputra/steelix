@@ -1,8 +1,9 @@
-[![Build Status](https://travis-ci.com/indrasaputra/steelix.svg?branch=master)](https://travis-ci.com/indrasaputra/steelix)
-[![codecov](https://codecov.io/gh/indrasaputra/steelix/branch/master/graph/badge.svg)](https://codecov.io/gh/indrasaputra/steelix)
-[![GolangCI](https://golangci.com/badges/github.com/indrasaputra/steelix.svg)](https://golangci.com)
 [![Go Report Card](https://goreportcard.com/badge/github.com/indrasaputra/steelix)](https://goreportcard.com/report/github.com/indrasaputra/steelix)
-[![Documentation](https://godoc.org/github.com/indrasaputra/steelix?status.svg)](http://godoc.org/github.com/indrasaputra/steelix)
+[![Workflow](https://github.com/indrasaputra/steelix/workflows/Test/badge.svg)](https://github.com/indrasaputra/steelix/actions)
+[![codecov](https://codecov.io/gh/indrasaputra/steelix/branch/main/graph/badge.svg?token=uLFqCaSQju)](https://codecov.io/gh/indrasaputra/steelix)
+[![Maintainability](https://api.codeclimate.com/v1/badges/752f9d6d57202bf9b92e/maintainability)](https://codeclimate.com/github/indrasaputra/steelix/maintainability)
+[![Go Reference](https://pkg.go.dev/badge/github.com/indrasaputra/steelix.svg)](https://pkg.go.dev/github.com/indrasaputra/steelix)
+[![GolangCI](https://golangci.com/badges/github.com/indrasaputra/steelix.svg)](https://golangci.com)
 
 # Steelix
 
