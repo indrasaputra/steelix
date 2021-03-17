@@ -1,6 +1,6 @@
 module github.com/indrasaputra/steelix
 
-go 1.12
+go 1.16
 
 require (
 	github.com/sony/gobreaker v0.0.0-20190329013020-a9b2a3fc7395
