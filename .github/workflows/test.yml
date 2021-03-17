@@ -3,6 +3,17 @@ name: Test
 on: [push, pull_request]
 
 jobs:
+  golangci:
+    name: lint using golangci
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.38.0
+
   unit-test:
     name: unit test and coverage
     runs-on: ubuntu-latest
