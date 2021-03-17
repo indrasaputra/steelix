@@ -1,6 +1,9 @@
 format:
 	gofmt -s -w .
 	
+lint:
+	golangci-lint run ./...
+	
 test:
 	go test -v -race ./...
 
